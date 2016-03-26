@@ -1,17 +1,17 @@
 from tkinter import *
-#import FA as fa
+import FA as fa
 
 class App(object):
         def __init__(self, master):
                 frame = Frame(master, width=1000, height=9000)
                 frame.pack()
                 self.master = master
-                self.ticker = StringVar(master)
-                self.textbox = Entry(master, relief=SUNKEN, textvariable=self.ticker)
-                self.textbox.pack(side=TOP)
-                self.button = Button(frame, text="Predict!", fg="blue", command=self.invest,
-                                     relief=RAISED)
-                self.button.pack(side=BOTTOM)
+                self.ticker = StringVar(frame)
+                self.textbox = Entry(frame, textvariable=self.ticker)
+                self.button = Button(frame, text="Predict!", fg="blue", command=self.invest)
+                
+                self.textbox.pack()
+                self.button.pack()
         def invest(self):
                 n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
                 print("Name: " + n)
@@ -23,5 +23,5 @@ class App(object):
 
 root = Tk()
 app = App(root)
-app.master.title = "The Profit Prophet"
+app.master.title("The Profit Prophet")
 root.mainloop()
