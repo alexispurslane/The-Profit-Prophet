@@ -24,12 +24,13 @@ class App(object):
                 self.textbox.pack()
                 self.button.pack()
                 self.name_label.pack(side=LEFT)
+                self.info_label.config(state=DISABLED)
                 self.info_label.pack(side=LEFT)
         def invest(self):
                 n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
                 self.name.set("\n"+ticker_to_name_dict[n].title()
                               .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
-                self.info.set("Risk Level: " + r + "\n\n" + \
+                self.info.set("Risk Level: " + r.upper() + "\n\n" + \
                 "Beta: " + str(b) + "\n\n" + \
                 "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n\n" + \
                 "Current Price per Share: " + str(round(cpps, 2)) + "\n\n" + \
