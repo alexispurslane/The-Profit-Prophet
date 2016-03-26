@@ -7,10 +7,6 @@ import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.externals import joblib
 
-with open('secwiki_tickers.csv', mode='r') as in_file:
-    reader = csv.DictReader(in_file)
-    name_to_ticker_dict = {row['Name'].lower(): row['Ticker'] for row in reader}
-
 def get_company_info(c):
     d = datetime.datetime.now().date()
 

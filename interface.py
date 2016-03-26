@@ -1,5 +1,10 @@
 from tkinter import *
 import FA as fa
+import csv
+
+with open('cboesymboldir2.csv', mode='r') as in_file:
+    reader = csv.DictReader(in_file)
+    ticker_to_name_dict = {row['Stock Symbol']: row['Company Name'] for row in reader}
 
 class App(object):
         def __init__(self, master):
@@ -18,11 +23,12 @@ class App(object):
                 
                 self.textbox.pack()
                 self.button.pack()
-                self.name_label.pack()
-                self.info_label.pack()
+                self.name_label.pack(side=LEFT)
+                self.info_label.pack(side=LEFT)
         def invest(self):
                 n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
-                self.name.set(n)
+                self.name.set("\n"+ticker_to_name_dict[n].title()
+                              .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
                 self.info.set("Risk Level: " + r + "\n\n" + \
                 "Beta: " + str(b) + "\n\n" + \
                 "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n\n" + \
