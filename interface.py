@@ -1,16 +1,17 @@
 from tkinter import *
-import FA as fa
+#import FA as fa
 
 class App(object):
         def __init__(self, master):
                 frame = Frame(master, width=1000, height=9000)
                 frame.pack()
+                self.master = master
                 self.ticker = StringVar(master)
                 self.textbox = Entry(master, relief=SUNKEN, textvariable=self.ticker)
-                self.textbox.pack()
+                self.textbox.pack(side=TOP)
                 self.button = Button(frame, text="Predict!", fg="blue", command=self.invest,
-                                     relief=RAISED, side=BOTTOM)
-                self.button.pack()
+                                     relief=RAISED)
+                self.button.pack(side=BOTTOM)
         def invest(self):
                 n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
                 print("Name: " + n)
