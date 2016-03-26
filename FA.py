@@ -137,9 +137,15 @@ except FileNotFoundError:
     joblib.dump(ai, 'expert.pkl')
     print("Done!")
 
-def company_worth_investing(c):
+def company_worth_investing_once(c, prevp=[]):
     i = get_company_info(c)
-    nvalue = ai.predict(list(map(eval, i['history']))[1:]+[eval(i['Current'])])[0]
+    if prevp == 0:
+        nvalue = ai.predict(list(map(eval, i['history']))[1:]+[eval(i['Current'])])[0]
+    else:
+        skip = 1 + len(prevp)
+        nvalue = ai.predict(list(map(eval, i['history']))[skip:]+[eval(i['Current'])]+\
+                            list(map(lambda x: x[-1], prevp)))[0]
+        
     b = eval(i['Beta:'])
     
     if 0.85 < b < 1.15:
@@ -155,3 +161,9 @@ def company_worth_investing(c):
             (nvalue-eval(i['Current']))/eval(i['Current']),
             eval(i['Current']),
             nvalue)
+
+def company_worth_investing(c, preds=[], iters=0):
+    if iters == 0:
+        return preds
+    else:
+        return company_worth_investing(c, preds + [company_worth_investing_once(c, preds)], iters-1)

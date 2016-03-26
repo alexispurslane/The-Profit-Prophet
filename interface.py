@@ -11,8 +11,13 @@ class App(object):
                 frame = Frame(master, width=1000, height=9000)
                 frame.pack()
                 self.master = master
+                
                 self.ticker = StringVar(frame)
                 self.textbox = Entry(frame, textvariable=self.ticker)
+                
+                self.dayn = StringVar(frame)
+                self.days = Entry(frame, textvariable=self.dayn)
+                
                 self.button = Button(frame, text="Predict!", fg="blue", command=self.invest)
                 
                 self.name = StringVar()
@@ -22,18 +27,24 @@ class App(object):
                 self.info_label = Label(frame, textvariable=self.info)
                 
                 self.textbox.pack()
+                self.days.pack()
                 self.button.pack()
                 self.name_label.pack(side=LEFT)
                 self.info_label.pack(side=LEFT)
+                
         def invest(self):
-                n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
+                predictions = fa.company_worth_investing(self.ticker.get(), iters=eval(self.dayn.get()))
+                n, r, b, pi, cpps, ppps = predictions[-1]
                 self.name.set("\n"+ticker_to_name_dict[n].title()
-                              .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
-                self.info.set("Risk Level: " + r.upper() + "\n\n" + \
-                "Beta: " + str(b) + "\n\n" + \
-                "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n\n" + \
-                "Current Price per Share: " + str(round(cpps, 2)) + "\n\n" + \
-                "Predicted Price per Share: " + str(round(ppps, 2)))
+                                .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
+                self.info.set("Risk Level: " + r.upper() + "\n" +\
+                              "Current Price per Share: " + str(round(cpps, 2)) + "\n" + \
+                              "Beta: " + str(b) + "\n\n\n")
+                
+                for n, r, b, pi, cpps, ppps in predictions:
+                    self.info.set(self.info.get()+\
+                    "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n" + \
+                    "Predicted Price per Share: " + str(round(ppps, 2)) + "\n\n")
 
 root = Tk()
 app = App(root)
