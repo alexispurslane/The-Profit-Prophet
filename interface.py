@@ -24,7 +24,6 @@ class App(object):
                 self.textbox.pack()
                 self.button.pack()
                 self.name_label.pack(side=LEFT)
-                self.info_label.config(state=DISABLED)
                 self.info_label.pack(side=LEFT)
         def invest(self):
                 n, r, b, pi, cpps, ppps = fa.company_worth_investing(self.ticker.get())
