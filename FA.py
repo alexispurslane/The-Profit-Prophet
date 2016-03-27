@@ -18,16 +18,16 @@ def get_company_info(c):
     if comp == None:
         return None
     
-    return dict(list({'history': list(map(lambda x: x['High'],
-                                        comp.get_historical(str(d - datetime.timedelta(days=300)),
-                                                            str(d))))}.items()) + \
+    return dict(list({'history': list(reversed(map(lambda x: x['High'],
+                                                   comp.get_historical(str(d - datetime.timedelta(days=300)),
+                                                                       str(d)))))}.items()) + \
                 list({tr.th.text: tr.td.text
                     for tr in list(soup.find("table", {"id":"table1"}).children)}.items()) +\
                 list({'Name': c}.items())+\
                 list({'Current':comp.get_price()}.items()))
 
 def training_info(x):
-    return (list(map(eval, get_company_info(x)['history'])),
+    return (list(reversed(map(eval, get_company_info(x)['history']))),
             eval(get_company_info(x)['Current']))
 try:
     print("Trying to load AI.")
@@ -149,13 +149,19 @@ def company_worth_investing_once(c, prevp=[]):
         return None
     else:
         if prevp == 0:
-            nvalue = ai.predict(list(map(eval, i['history']))[1:]+[eval(i['Current'])])[0]
+            nvalue = ai.predict(list(reversed(map(eval, i['history'])))[1:]+[eval(i['Current'])])[0]
         else:
             skip = 1 + len(prevp)
-            nvalue = ai.predict(list(map(eval, i['history']))[skip:]+[eval(i['Current'])]+\
+            nvalue = ai.predict(list(reversed(map(eval, i['history'])))[skip:]+[eval(i['Current'])]+\
                                 list(map(lambda x: x[-1], prevp)))[0]
 
-        b = eval(i['Beta:'])
+        beta = 0
+        if i['Beta:'] != 'N/A':
+            beta = i['Beta:']
+        else:
+            return None
+        
+        b = eval(beta)
 
         if 0.85 < b < 1.15:
             risk = 'low'
