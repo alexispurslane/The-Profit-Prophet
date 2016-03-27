@@ -5,7 +5,14 @@ import csv
 with open('cboesymboldir2.csv', mode='r') as in_file:
     reader = csv.DictReader(in_file)
     ticker_to_name_dict = {row['Stock Symbol']: row['Company Name'] for row in reader}
+    name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
+def name_to_ticker(n):
+    for (k, v) in name_to_ticker_dict.items():
+        print(k, v)
+        if n in k or n in v or k in n or v in n:
+            return v
+    
 class App(object):
         def __init__(self, master):
                 frame = Frame(master, width=1000, height=9000)
@@ -33,7 +40,11 @@ class App(object):
                 self.info_label.pack(side=LEFT)
                 
         def invest(self):
-                predictions = fa.company_worth_investing(self.ticker.get(), iters=eval(self.dayn.get()))
+                if self.ticker.get() in ticker_to_name_dict:
+                    predictions = fa.company_worth_investing(self.ticker.get(), iters=eval(self.dayn.get()))
+                else:
+                    predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=eval(self.dayn.get()))
+                    
                 n, r, b, pi, cpps, ppps = predictions[-1]
                 self.name.set("\n"+ticker_to_name_dict[n].title()
                                 .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
