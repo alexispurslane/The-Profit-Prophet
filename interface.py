@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter_help import *
 
 import FA as fa
 
@@ -10,6 +11,11 @@ matplotlib.use("TkAgg")
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+
+# TODO: Use Text widget for info_label, instead of Label widget
+# 2) SCroll it.
+# 3) Show suggestions when there are multiple matches for a stock in fuzzy searching.
+
 
 with open('cboesymboldir2.csv', mode='r') as in_file:
     reader = csv.DictReader(in_file)
@@ -23,8 +29,8 @@ def name_to_ticker(n):
         
 class App(object):
         def __init__(self, master):
-            frame = Frame(master)
-            frame.pack()
+            frame = Frame(master, width=1850, height=900)
+            frame.pack(expand=False)
             self.master = master
             
             self.ticker = StringVar(frame)
@@ -35,24 +41,27 @@ class App(object):
 
             self.button = Button(frame, text="Predict!", bg="blue", command=self.invest)
 
-            self.name = StringVar()
-            self.info = StringVar()
+            info_card = VerticalScrolledFrame(frame, width=925, height=900)
+            self.name = StringVar(info_card)
+            self.info = StringVar(info_card)
 
-            self.name_label = Label(frame, textvariable=self.name, font="Helvetica 32 bold")
-            self.info_label = Label(frame, textvariable=self.info)
+            self.name_label = Label(info_card.interior, textvariable=self.name, font="Helvetica 32 bold")
+            self.info_label = Label(info_card.interior, textvariable=self.info)
             
             self.textbox.pack()
             self.day_slider.pack()
             self.button.pack()
-            self.name_label.pack(side=LEFT)
-            self.info_label.pack(side=LEFT)
+
+            info_card.pack(side=LEFT)
+            self.name_label.pack()
+            self.info_label.pack()
             
             f = Figure(figsize=(5,5), dpi=100, facecolor='white')
             self.subplot = f.add_subplot(111)
 
             canvas = FigureCanvasTkAgg(f, frame)
             canvas.show()
-            canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+            canvas.get_tk_widget().pack(side=RIGHT, fill=BOTH, expand=True)
 
         def invest(self):
             ticker = self.ticker.get() in ticker_to_name_dict
@@ -81,7 +90,7 @@ class App(object):
             else:
                 n, r, b, pi, cpps, ppps = predictions[-1]
                 self.name.set("\n"+ticker_to_name_dict[n].title()
-                                .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
+                                .replace("Stk", "").replace(" Com", "") + " ("+n+") \n")
                 self.info.set("Risk Level: " + r.upper() + "\n" +\
                                 "Current Price per Share: " + str(round(cpps, 2)) + "\n" + \
                                 "Beta: " + str(b) + "\n\n\n")
@@ -92,7 +101,7 @@ class App(object):
                                     "Predicted Price per Share: " + str(round(ppps, 2)) + "\n\n")
 
 root = Tk()
-root.geometry('{}x{}'.format(900, 900))
+root.geometry('{}x{}'.format(1850, 900))
 
 app = App(root)
 app.master.title("The Profit Prophet")
