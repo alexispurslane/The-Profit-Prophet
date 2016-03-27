@@ -70,7 +70,7 @@ class App(object):
                 else:
                     n = name_to_ticker(self.ticker.get().lower())
                     
-                vs = list(reversed(list(map(eval, fa.get_company_info(n)['history'])))) + list(map(lambda x: x[5], predictions))
+                vs = list(map(eval, fa.get_company_info(n)['history'])) + list(map(lambda x: x[5], predictions))
                 self.subplot.cla()
                 self.subplot.plot(vs)
                 
