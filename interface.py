@@ -43,18 +43,21 @@ class App(object):
                     predictions = fa.company_worth_investing(self.ticker.get(), iters=eval(self.dayn.get()))
                 else:
                     predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=eval(self.dayn.get()))
-                    
-                n, r, b, pi, cpps, ppps = predictions[-1]
-                self.name.set("\n"+ticker_to_name_dict[n].title()
-                                .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
-                self.info.set("Risk Level: " + r.upper() + "\n" +\
-                              "Current Price per Share: " + str(round(cpps, 2)) + "\n" + \
-                              "Beta: " + str(b) + "\n\n\n")
-                
-                for n, r, b, pi, cpps, ppps in predictions:
-                    self.info.set(self.info.get()+\
-                    "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n" + \
-                    "Predicted Price per Share: " + str(round(ppps, 2)) + "\n\n")
+
+                if predictions == None:
+                    self.name.set("Company '"+self.ticker+"' not found.")
+                else:
+                    n, r, b, pi, cpps, ppps = predictions[-1]
+                    self.name.set("\n"+ticker_to_name_dict[n].title()
+                                    .replace("Stk", "").replace(" Com", "") + " ("+n+") ")
+                    self.info.set("Risk Level: " + r.upper() + "\n" +\
+                                "Current Price per Share: " + str(round(cpps, 2)) + "\n" + \
+                                "Beta: " + str(b) + "\n\n\n")
+
+                    for n, r, b, pi, cpps, ppps in predictions:
+                        self.info.set(self.info.get()+\
+                        "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n" + \
+                        "Predicted Price per Share: " + str(round(ppps, 2)) + "\n\n")
 
 root = Tk()
 app = App(root)
