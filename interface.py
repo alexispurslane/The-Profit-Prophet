@@ -45,7 +45,7 @@ class App(object):
                     predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=eval(self.dayn.get()))
 
                 if predictions == None:
-                    self.name.set("Company '"+self.ticker+"' not found.")
+                    self.name.set("Company '"+self.ticker.get()+"' not found.")
                 else:
                     n, r, b, pi, cpps, ppps = predictions[-1]
                     self.name.set("\n"+ticker_to_name_dict[n].title()
