@@ -18,16 +18,15 @@ def get_company_info(c):
     if comp == None:
         return None
     
-    return dict(list({'history': list(reversed(map(lambda x: x['High'],
-                                                   comp.get_historical(str(d - datetime.timedelta(days=300)),
-                                                                       str(d)))))}.items()) + \
+    return dict(list({'history': list(reversed(list(map(lambda x: x['High'],
+                                                        comp.get_historical(str(d - datetime.timedelta(days=300)), str(d))))))}.items()) + \
                 list({tr.th.text: tr.td.text
                     for tr in list(soup.find("table", {"id":"table1"}).children)}.items()) +\
                 list({'Name': c}.items())+\
                 list({'Current':comp.get_price()}.items()))
 
 def training_info(x):
-    return (list(reversed(map(eval, get_company_info(x)['history']))),
+    return (list(reversed(list(map(eval, get_company_info(x)['history'])))),
             eval(get_company_info(x)['Current']))
 try:
     print("Trying to load AI.")
@@ -133,6 +132,11 @@ except FileNotFoundError:
         training_info('JPM'),
         training_info('KSS'),
         training_info('M'),
+        training_info('HD'),
+        training_info('MRO'),
+        training_info('F'),
+        training_info('FCX'),
+        training_info('PFE'),
     ]
 
     ai.fit(list(map(lambda x: x[0], histories)),
@@ -148,12 +152,13 @@ def company_worth_investing_once(c, prevp=[]):
     if i == None:
         return None
     else:
+        history = list(reversed(list(map(eval, i['history']))))
+        current = eval(i['Current'])
         if prevp == 0:
-            nvalue = ai.predict(list(reversed(map(eval, i['history'])))[1:]+[eval(i['Current'])])[0]
+            nvalue = ai.predict(history[1:]+[current])[0]
         else:
             skip = 1 + len(prevp)
-            nvalue = ai.predict(list(reversed(map(eval, i['history'])))[skip:]+[eval(i['Current'])]+\
-                                list(map(lambda x: x[-1], prevp)))[0]
+            nvalue = ai.predict(history[skip:]+[current]+list(map(lambda x: x[-1], prevp)))[0]
 
         beta = 0
         if i['Beta:'] != 'N/A':
