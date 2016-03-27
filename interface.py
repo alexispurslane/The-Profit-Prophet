@@ -9,7 +9,7 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
 
 def name_to_ticker(n):
     for (k, v) in name_to_ticker_dict.items():
-        if n in k or n in v or k in n or v in n:
+        if n in k or n in v.lower() or k in n or v.lower() in n:
             return v
     
 class App(object):
