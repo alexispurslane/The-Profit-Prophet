@@ -7,7 +7,7 @@ import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.externals import joblib
 
-def get_company_info(c):
+def get_company_info(c, days=300):
     if c == None:
         return None
     
@@ -19,7 +19,7 @@ def get_company_info(c):
         return None
     
     return dict(list({'history': list(reversed(list(map(lambda x: x['High'],
-                                                        comp.get_historical(str(d - datetime.timedelta(days=300)), str(d))))))}.items()) + \
+                                                        comp.get_historical(str(d - datetime.timedelta(days=days)), str(d))))))}.items()) + \
                 list({tr.th.text: tr.td.text
                     for tr in list(soup.find("table", {"id":"table1"}).children)}.items()) +\
                 list({'Name': c}.items())+\
@@ -155,10 +155,10 @@ def company_worth_investing_once(c, prevp=[]):
         history = list(reversed(list(map(eval, i['history']))))
         current = eval(i['Current'])
         if prevp == 0:
-            nvalue = ai.predict(history[1:]+[current])[0]
+            nvalue = ai.predict([history[1:]+[current]])[0]
         else:
             skip = 1 + len(prevp)
-            nvalue = ai.predict(history[skip:]+[current]+list(map(lambda x: x[-1], prevp)))[0]
+            nvalue = ai.predict([history[skip:]+[current]+list(map(lambda x: x[-1], prevp))])[0]
 
         beta = 0
         if i['Beta:'] != 'N/A':
