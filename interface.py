@@ -5,6 +5,7 @@ import FA as fa
 
 import csv
 import re
+from fuzzywuzzy import process
 
 import matplotlib
 matplotlib.use("TkAgg")
@@ -23,10 +24,10 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
     name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
 def name_to_ticker(n):
-    for (k, v) in name_to_ticker_dict.items():
-        if n in k or n in v.lower() or k in n:
-            return v
-        
+    choices = list(name_to_ticker_dict.keys())
+    k = process.extractOne(n, choices)[0]
+    return name_to_ticker_dict[k]
+
 class App(object):
         def __init__(self, master):
             frame = Frame(master, width=1850, height=900)
@@ -78,7 +79,6 @@ class App(object):
 
         def invest(self):
             ticker = self.ticker.get() in ticker_to_name_dict
-            print(ticker)
             if self.ticker.get() in ticker_to_name_dict:
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
             else:
