@@ -117,8 +117,8 @@ class App(object):
 
                 self.info_list.delete(0, END)
                 for n, r, b, pi, cpps, ppps in predictions:
-                    self.info_list.insert(END, "Increase: " + str(round(pi*100, 2)) + "%" + ",  " + \
-                                               "Predicted Share Price: $" + str(round(ppps, 2)) + "\n\n")
+                    self.info_list.insert(END, "Increase: " + str(round(pi*100, 2)) + "%" + ", " + \
+                                               "Predicted Price: $" + str(round(ppps, 2)) + "\n\n")
 
 root = Tk()
 root.geometry('{}x{}'.format(1850, 900))

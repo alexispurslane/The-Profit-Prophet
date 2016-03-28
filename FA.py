@@ -155,10 +155,10 @@ def company_worth_investing_once(c, prevp=[]):
         history = list(reversed(list(map(eval, i['history']))))
         current = eval(i['Current'])
         if prevp == 0:
-            nvalue = ai.predict(history[1:]+[current])[0]
+            nvalue = ai.predict([history[1:]+[current]])[0]
         else:
-            skip = 1 + len(prevp)
-            nvalue = ai.predict(history[skip:]+[current]+list(map(lambda x: x[-1], prevp)))[0]
+            skip = len(prevp)
+            nvalue = ai.predict([history[skip:]+[current]+list(map(lambda x: x[-1], prevp))])[0]
 
         beta = 0
         if i['Beta:'] != 'N/A':
