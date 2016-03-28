@@ -39,29 +39,36 @@ class App(object):
             self.dayn = IntVar(frame)
             self.day_slider = Scale(frame, from_=1, to=30, variable=self.dayn, orient=HORIZONTAL, length=250)
 
-            self.button = Button(frame, text="Predict!", bg="blue", command=self.invest)
+            self.button = Button(frame, text="Predict!", command=self.invest)
 
-            info_card = VerticalScrolledFrame(frame, width=925, height=900)
+            info_card = Frame(frame)
             self.name = StringVar(info_card)
             self.info = StringVar(info_card)
 
-            self.name_label = Label(info_card.interior, textvariable=self.name, font="Helvetica 32 bold")
-            self.info_label = Label(info_card.interior, textvariable=self.info)
+            self.name_label = Label(info_card, textvariable=self.name, font="Helvetica 32 bold")
+            self.info_label = Label(info_card, textvariable=self.info, font="Helvetica 16", fg="gray")
+
+            scrollbar = Scrollbar(info_card)
+            scrollbar.pack(side=RIGHT, fill=Y)
+            self.info_list  = Listbox(info_card, yscrollcommand=scrollbar.set, borderwidth=0)
+            scrollbar.config(command=self.info_list.yview)
             
             self.textbox.pack()
-            self.day_slider.pack()
+            self.textbox.focus_set()
             self.button.pack()
+            self.day_slider.pack()
 
-            info_card.pack(side=LEFT)
+            info_card.pack(side=LEFT, expand=True)
             self.name_label.pack()
             self.info_label.pack()
+            self.info_list.pack(fill=BOTH, expand=True)
             
             f = Figure(figsize=(5,5), dpi=100, facecolor='white')
             self.subplot = f.add_subplot(111)
 
             canvas = FigureCanvasTkAgg(f, frame)
             canvas.show()
-            canvas.get_tk_widget().pack(side=RIGHT, fill=BOTH, expand=True)
+            canvas.get_tk_widget().pack(side=RIGHT, fill=X, expand=True)
 
         def invest(self):
             ticker = self.ticker.get() in ticker_to_name_dict
@@ -95,10 +102,10 @@ class App(object):
                                 "Current Price per Share: " + str(round(cpps, 2)) + "\n" + \
                                 "Beta: " + str(b) + "\n\n\n")
 
+                self.info_list.delete(0, END)
                 for n, r, b, pi, cpps, ppps in predictions:
-                    self.info.set(self.info.get()+\
-                                    "Price Increase (%): " + str(round(pi*100, 2)) + "%" + "\n" + \
-                                    "Predicted Price per Share: " + str(round(ppps, 2)) + "\n\n")
+                    self.info_list.insert(END, "Increase: " + str(round(pi*100, 2)) + "%" + ",  " + \
+                                               "Predicted Share Price: " + str(round(ppps, 2)) + "\n\n")
 
 root = Tk()
 root.geometry('{}x{}'.format(1850, 900))
