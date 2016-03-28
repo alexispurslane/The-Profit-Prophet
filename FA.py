@@ -8,20 +8,25 @@ from sklearn.linear_model import LinearRegression
 from sklearn.externals import joblib
 
 def get_company_info(c):
+    if c == None:
+        return None
+    
     d = datetime.datetime.now().date()
 
     comp = Share(c)
     soup = BeautifulSoup(urllib.request.urlopen('http://finance.yahoo.com/q?s='+c).read(), 'lxml')
-    return dict(list({'history': list(map(lambda x: x['High'],
-                                          comp.get_historical(str(d - datetime.timedelta(days=300)),
-                                                              str(d))))}.items()) + \
+    if comp == None:
+        return None
+    
+    return dict(list({'history': list(reversed(list(map(lambda x: x['High'],
+                                                        comp.get_historical(str(d - datetime.timedelta(days=300)), str(d))))))}.items()) + \
                 list({tr.th.text: tr.td.text
-                      for tr in list(soup.find("table", {"id":"table1"}).children)}.items()) +\
+                    for tr in list(soup.find("table", {"id":"table1"}).children)}.items()) +\
                 list({'Name': c}.items())+\
                 list({'Current':comp.get_price()}.items()))
 
 def training_info(x):
-    return (list(map(eval, get_company_info(x)['history'])),
+    return (list(reversed(list(map(eval, get_company_info(x)['history'])))),
             eval(get_company_info(x)['Current']))
 try:
     print("Trying to load AI.")
@@ -127,6 +132,11 @@ except FileNotFoundError:
         training_info('JPM'),
         training_info('KSS'),
         training_info('M'),
+        training_info('HD'),
+        training_info('MRO'),
+        training_info('F'),
+        training_info('FCX'),
+        training_info('PFE'),
     ]
 
     ai.fit(list(map(lambda x: x[0], histories)),
@@ -139,31 +149,45 @@ except FileNotFoundError:
 
 def company_worth_investing_once(c, prevp=[]):
     i = get_company_info(c)
-    if prevp == 0:
-        nvalue = ai.predict(list(map(eval, i['history']))[1:]+[eval(i['Current'])])[0]
+    if i == None:
+        return None
     else:
-        skip = 1 + len(prevp)
-        nvalue = ai.predict(list(map(eval, i['history']))[skip:]+[eval(i['Current'])]+\
-                            list(map(lambda x: x[-1], prevp)))[0]
+        history = list(reversed(list(map(eval, i['history']))))
+        current = eval(i['Current'])
+        if prevp == 0:
+            nvalue = ai.predict(history[1:]+[current])[0]
+        else:
+            skip = 1 + len(prevp)
+            nvalue = ai.predict(history[skip:]+[current]+list(map(lambda x: x[-1], prevp)))[0]
+
+        beta = 0
+        if i['Beta:'] != 'N/A':
+            beta = i['Beta:']
+        else:
+            return None
         
-    b = eval(i['Beta:'])
-    
-    if 0.85 < b < 1.15:
-        risk = 'low'
-    elif 0.5 < b < 0.85 or 1.15 < b < 1.5:
-        risk = 'medium'
-    elif 0.5 > b or 1.5 < b:
-        risk = 'high'
-        
-    # Name, Risk (low/medium/high), Beta, Percentage Increase, CPPS, PPPS
-    return (i['Name'],
-            risk, b,
-            (nvalue-eval(i['Current']))/eval(i['Current']),
-            eval(i['Current']),
-            nvalue)
+        b = eval(beta)
+
+        if 0.85 < b < 1.15:
+            risk = 'low'
+        elif 0.5 < b < 0.85 or 1.15 < b < 1.5:
+            risk = 'medium'
+        elif 0.5 > b or 1.5 < b:
+            risk = 'high'
+
+        # Name, Risk (low/medium/high), Beta, Percentage Increase, CPPS, PPPS
+        return (i['Name'],
+                risk, b,
+                (nvalue-eval(i['Current']))/eval(i['Current']),
+                eval(i['Current']),
+                nvalue)
 
 def company_worth_investing(c, preds=[], iters=0):
     if iters == 0:
         return preds
     else:
-        return company_worth_investing(c, preds + [company_worth_investing_once(c, preds)], iters-1)
+        cwio = company_worth_investing_once(c, preds)
+        if cwio == None:
+            return None
+        else:
+            return company_worth_investing(c, preds + [cwio], iters-1)
