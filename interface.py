@@ -67,10 +67,16 @@ class App(object):
             self.info_label.pack()
             self.info_list.pack(fill=BOTH, expand=True)
             
-            f = Figure(figsize=(5,5), dpi=100, facecolor='white')
-            self.subplot = f.add_subplot(111)
+            self.fig = plt.figure()
+            
+            rect = self.fig.patch
+            rect.set_facecolor('white')
+            
+            self.subplot = self.fig.add_subplot(1, 1, 1)
+            
+            self.fig.suptitle('Share Price History')
 
-            canvas = FigureCanvasTkAgg(f, frame)
+            canvas = FigureCanvasTkAgg(self.fig, frame)
             canvas.show()
             canvas.get_tk_widget().pack(side=RIGHT, fill=X, expand=True)
 
@@ -91,11 +97,12 @@ class App(object):
                 
                 real = list(map(eval, info['history'])) + [info['Current']]
                 pred = list(map(lambda x: x[5], predictions))
+                
                 self.subplot.cla()
                 self.subplot.plot(real + pred, zorder=1)
+                
                 x = range(len(real+pred))
                 y = real+pred
-                print(pred)
                 
                 def choose_color(i):
                     if i >= len(real):
@@ -104,7 +111,9 @@ class App(object):
                         return '#0000ff'
                     
                 c = [choose_color(i) for i in x]
-                self.subplot.scatter(x, y, c=c, s=15, zorder=2)
+                self.subplot.scatter(x, y, c=c, s=12, zorder=2, edgecolor='white')
+                
+                self.subplot.set_xlim([0, len(real+pred)])
                 
             if predictions == None:
                 self.name.set("Company '"+self.ticker.get()+"' not found.")
