@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter_help import *
 
 import FA as fa
 
