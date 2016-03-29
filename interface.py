@@ -5,18 +5,16 @@ import FA as fa
 
 import csv
 import re
+import numpy as np
 from fuzzywuzzy import process
 
 import matplotlib
 matplotlib.use("TkAgg")
+
+from matplotlib import collections as mc
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-
-# TODO
-# 1) Show suggestions when there are multiple matches for a stock in fuzzy searching.
-# 2) Color the risk level.
-
 
 with open('cboesymboldir2.csv', mode='r') as in_file:
     reader = csv.DictReader(in_file)
@@ -24,9 +22,9 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
     name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
 def name_to_ticker(n):
-    choices = list(name_to_ticker_dict.keys())
+    choices = list(map(lambda x: x.replace("inc.", ""), name_to_ticker_dict.keys()))
     k = process.extractOne(n, choices)[0]
-    return name_to_ticker_dict[k]
+    return name_to_ticker_dict[k.replace("  ", " inc. ")]
 
 class App(object):
         def __init__(self, master):
@@ -82,7 +80,6 @@ class App(object):
             if self.ticker.get() in ticker_to_name_dict:
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
             else:
-                print(name_to_ticker(self.ticker.get().lower()))
                 predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=self.dayn.get())
 
             if predictions != None:
@@ -91,10 +88,24 @@ class App(object):
                     n = self.ticker.get()
                 else:
                     n = name_to_ticker(self.ticker.get().lower())
-                    
-                vs = list(map(eval, fa.get_company_info(n)['history'])) + list(map(lambda x: x[5], predictions))
+                info = fa.get_company_info(n)
+                
+                real = list(map(eval, info['history'])) + [info['Current']]
+                pred = list(map(lambda x: x[5], predictions))
                 self.subplot.cla()
-                self.subplot.plot(vs)
+                self.subplot.plot(real + pred, zorder=1)
+                x = range(len(real+pred))
+                y = real+pred
+                print(pred)
+                
+                def choose_color(i):
+                    if i >= len(real):
+                        return '#ff0000'
+                    else:
+                        return '#0000ff'
+                    
+                c = [choose_color(i) for i in x]
+                self.subplot.scatter(x, y, c=c, s=15, zorder=2)
                 
             if predictions == None:
                 self.name.set("Company '"+self.ticker.get()+"' not found.")

@@ -157,8 +157,9 @@ def company_worth_investing_once(c, prevp=[]):
         if prevp == 0:
             nvalue = ai.predict([history[1:]+[current]])[0]
         else:
-            skip = len(prevp)
-            nvalue = ai.predict([history[skip:]+[current]+list(map(lambda x: x[-1], prevp))])[0]
+            p = list(map(lambda x: x[-1], prevp))
+            size = 206 - len(p)
+            nvalue = ai.predict([history[:size]+[current]+p])[0]
 
         beta = 0
         if i['Beta:'] != 'N/A':
