@@ -184,6 +184,7 @@ def company_worth_investing_once(c, prevp=[]):
                 nvalue)
 
 def company_worth_investing(c, preds=[], iters=0):
+    print(len(preds))
     if iters == 0:
         return preds
     else:

@@ -103,6 +103,7 @@ class App(object):
                 
                 x = range(len(real+pred))
                 y = real+pred
+                print(len(real), " and ", len(pred))
                 
                 def choose_color(i):
                     if i >= len(real):
