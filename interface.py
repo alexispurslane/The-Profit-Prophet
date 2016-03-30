@@ -58,8 +58,8 @@ class App(object):
             
             self.textbox.pack()
             self.textbox.focus_set()
-            self.button.pack()
             self.day_slider.pack()
+            self.button.pack()
 
             info_card.pack(side=LEFT, expand=True)
             self.name_label.pack()
@@ -81,6 +81,7 @@ class App(object):
             canvas.get_tk_widget().pack(side=RIGHT, fill=X, expand=True)
 
         def invest(self):
+            self.info.set("Loading your data...")
             ticker = self.ticker.get() in ticker_to_name_dict
             if self.ticker.get() in ticker_to_name_dict:
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
