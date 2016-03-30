@@ -40,7 +40,7 @@ class App(object):
             self.dayn = IntVar(frame)
             self.day_slider = Scale(frame, from_=1, to=30, variable=self.dayn, orient=HORIZONTAL, length=250)
 
-            self.button = Button(frame, text="Predict!", command=self.invest)
+            self.button = Button(frame, text="Predict!", command=self.invest, relief=RAISED, padx=8, pady=5)
 
             info_card = Frame(frame)
             self.name = StringVar(info_card)
@@ -81,7 +81,6 @@ class App(object):
             canvas.get_tk_widget().pack(side=RIGHT, fill=X, expand=True)
 
         def invest(self):
-            self.info.set("Loading your data...")
             ticker = self.ticker.get() in ticker_to_name_dict
             if self.ticker.get() in ticker_to_name_dict:
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
@@ -123,7 +122,7 @@ class App(object):
             else:
                 n, r, b, pi, cpps, ppps = predictions[-1]
                 self.name.set("\n"+ticker_to_name_dict[n].title()
-                                .replace("Stk", "").replace(" Com", "") + " ("+n+") \n")
+                                .replace("Stk", "").replace(" Common Stock", "").replace(" Com", "") + " ("+n+") \n")
                 self.risk.set("Risk Level: " + r.upper() + "\n")
                 if r == 'low':
                     self.risk_label.config(fg="green")
