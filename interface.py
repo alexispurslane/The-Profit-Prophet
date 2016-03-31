@@ -20,11 +20,11 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
     ticker_to_name_dict = {row['Stock Symbol']: row['Company Name'] for row in reader}
     name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
-def name_to_ticker(n, mutli=False):
+def name_to_ticker(n, multi=False):
     choices = list(map(lambda x: x.replace("inc.", ""), name_to_ticker_dict.keys()))
     ks = process.extract(n, choices)
     if multi:
-        return filter(lambda x: x[1] > 90, ks)
+        return ks[:5]
     else:
         k = max(ks, key=lambda x: x[1])
         return name_to_ticker_dict[k.replace("  ", " inc. ")]
@@ -40,6 +40,17 @@ class App(object):
             def invest(x):
                 self.invest()
             self.textbox.bind('<Return>', invest)
+
+            self.selected = StringVar(frame)
+            def onselect(evt):
+                w = evt.widget
+                i = int(w.curselection()[0])
+                v = w.get(i)
+                print(v)
+                self.selected.set(v)
+                
+            self.suggest_list  = Listbox(frame, borderwidth=2, width=300)
+            self.suggest_list.bind('<<ListboxSelect>>', onselect)
 
             self.dayn = IntVar(frame)
             self.day_slider = Scale(frame, from_=1, to=30, variable=self.dayn, orient=HORIZONTAL, length=250)
@@ -61,6 +72,7 @@ class App(object):
             scrollbar.config(command=self.info_list.yview)
             
             self.textbox.pack()
+            self.suggest_list.pack()
             self.textbox.focus_set()
             self.day_slider.pack()
             self.button.pack()
@@ -91,10 +103,14 @@ class App(object):
             
             ticker = self.ticker.get() in ticker_to_name_dict
             if self.ticker.get() in ticker_to_name_dict:
-                print("reset")
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
             else:
-                predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=self.dayn.get())
+                names = name_to_ticker(self.ticker.get().lower(), multi=True)
+                for name in names:
+                    self.suggest_list.insert(END, name[0])
+                    
+                name = self.selected.get() or names[0]
+                predictions = fa.company_worth_investing(name[0], iters=self.dayn.get())
 
             if predictions != None:
                 n = ""
