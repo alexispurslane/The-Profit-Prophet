@@ -21,13 +21,13 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
     name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
 def name_to_ticker(n, multi=False):
-    choices = list(map(lambda x: x.replace("inc.", ""), name_to_ticker_dict.keys()))
+    choices = list(map(lambda x: x.replace("inc.", "|"), name_to_ticker_dict.keys()))
     ks = process.extract(n, choices)
     if multi:
-        return ks[:5]
+        return list(map(lambda x: x[0].replace("|", "inc."), ks[:5]))
     else:
         k = max(ks, key=lambda x: x[1])
-        return name_to_ticker_dict[k.replace("  ", " inc. ")]
+        return name_to_ticker_dict[k.replace("|", "inc.")]
 
 class App(object):
         def __init__(self, master):
@@ -43,14 +43,13 @@ class App(object):
 
             self.selected = StringVar(frame)
             def onselect(evt):
-                w = evt.widget
-                i = int(w.curselection()[0])
-                v = w.get(i)
-                print(v)
-                self.selected.set(v)
+                widget = evt.widget
+                selection=widget.curselection()
+                value = widget.get(selection[0])
+                self.selected.set(value)
                 
             self.suggest_list  = Listbox(frame, borderwidth=2, width=300)
-            self.suggest_list.bind('<<ListboxSelect>>', onselect)
+            self.suggest_list.bind('<Double-Button-1>', onselect)
 
             self.dayn = IntVar(frame)
             self.day_slider = Scale(frame, from_=1, to=30, variable=self.dayn, orient=HORIZONTAL, length=250)
@@ -107,10 +106,10 @@ class App(object):
             else:
                 names = name_to_ticker(self.ticker.get().lower(), multi=True)
                 for name in names:
-                    self.suggest_list.insert(END, name[0])
+                    self.suggest_list.insert(END, name)
                     
-                name = self.selected.get() or names[0]
-                predictions = fa.company_worth_investing(name[0], iters=self.dayn.get())
+                name = name_to_ticker_dict[self.selected.get()] or name_to_ticker_dict[names[0]]
+                predictions = fa.company_worth_investing(name, iters=self.dayn.get())
 
             if predictions != None:
                 n = ""
