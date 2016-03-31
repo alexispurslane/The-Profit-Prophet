@@ -20,10 +20,14 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
     ticker_to_name_dict = {row['Stock Symbol']: row['Company Name'] for row in reader}
     name_to_ticker_dict = {v.lower(): k for (k, v) in ticker_to_name_dict.items()}
 
-def name_to_ticker(n):
+def name_to_ticker(n, mutli=False):
     choices = list(map(lambda x: x.replace("inc.", ""), name_to_ticker_dict.keys()))
-    k, r = process.extractOne(n, choices)
-    return name_to_ticker_dict[k.replace("  ", " inc. ")]
+    ks = process.extract(n, choices)
+    if multi:
+        return filter(lambda x: x[1] > 90, ks)
+    else:
+        k = max(ks, key=lambda x: x[1])
+        return name_to_ticker_dict[k.replace("  ", " inc. ")]
 
 class App(object):
         def __init__(self, master):
