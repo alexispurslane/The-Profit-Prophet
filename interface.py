@@ -22,7 +22,7 @@ with open('cboesymboldir2.csv', mode='r') as in_file:
 
 def name_to_ticker(n):
     choices = list(map(lambda x: x.replace("inc.", ""), name_to_ticker_dict.keys()))
-    k = process.extractOne(n, choices)[0]
+    k, r = process.extractOne(n, choices)
     return name_to_ticker_dict[k.replace("  ", " inc. ")]
 
 class App(object):
@@ -81,8 +81,13 @@ class App(object):
             canvas.get_tk_widget().pack(side=RIGHT, fill=X, expand=True)
 
         def invest(self):
+            self.name.set("Loading...")
+            
+            self.name_label.update()
+            
             ticker = self.ticker.get() in ticker_to_name_dict
             if self.ticker.get() in ticker_to_name_dict:
+                print("reset")
                 predictions = fa.company_worth_investing(self.ticker.get(), iters=self.dayn.get())
             else:
                 predictions = fa.company_worth_investing(name_to_ticker(self.ticker.get().lower()), iters=self.dayn.get())
@@ -98,13 +103,11 @@ class App(object):
                 real = list(map(eval, info['history'])) + [info['Current']]
                 pred = list(map(lambda x: x[5], predictions))
                 
-                self.subplot.cla()
+                self.subplot.clear()
                 self.subplot.plot(real + pred, zorder=1)
                 
                 x = range(len(real+pred))
                 y = real+pred
-                print(len(real), " and ", len(pred))
-                
                 def choose_color(i):
                     if i >= len(real):
                         return '#ff0000'

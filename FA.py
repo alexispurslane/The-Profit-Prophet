@@ -26,8 +26,8 @@ def get_company_info(c):
                 list({'Current':comp.get_price()}.items()))
 
 def training_info(x):
-    return (list(reversed(list(map(eval, get_company_info(x)['history'])))),
-            eval(get_company_info(x)['Current']))
+    i = get_company_info(x)
+    return (list(reversed(list(map(eval, i['history'])))), eval(i['Current']))
 try:
     print("Trying to load AI.")
     ai = joblib.load('expert.pkl')
@@ -183,13 +183,11 @@ def company_worth_investing_once(c, prevp=[]):
                 eval(i['Current']),
                 nvalue)
 
-def company_worth_investing(c, preds=[], iters=0):
-    print(len(preds))
-    if iters == 0:
-        return preds
-    else:
+def company_worth_investing(c, iters=1):
+    preds = []
+    for i in range(iters):
         cwio = company_worth_investing_once(c, preds)
         if cwio == None:
             return None
-        else:
-            return company_worth_investing(c, preds + [cwio], iters-1)
+        preds.append(cwio)
+    return preds
